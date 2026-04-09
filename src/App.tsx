@@ -19,6 +19,7 @@ interface Deal {
   source: string;
   category: string;
   trendingScore: number;
+  salesCount?: number;
 }
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("all");
   const [activeCategory, setActiveCategory] = useState("all");
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<"home" | "store">("home");
   const [googleDeals, setGoogleDeals] = useState<Deal[]>([]);
   const [isLoadingGoogle, setIsLoadingGoogle] = useState(false);
 
@@ -135,7 +137,22 @@ export default function App() {
           </div>
 
           <div className="hidden md:flex items-center gap-8">
-            {/* Nav links or empty space */}
+            <button 
+              onClick={() => setCurrentView("home")}
+              className={`text-xs font-bold uppercase tracking-widest transition-colors ${
+                currentView === "home" ? "text-orange-500" : "text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              Home
+            </button>
+            <button 
+              onClick={() => setCurrentView("store")}
+              className={`text-xs font-bold uppercase tracking-widest transition-colors ${
+                currentView === "store" ? "text-orange-500" : "text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              Best Sellers Store
+            </button>
           </div>
 
           <div className="flex items-center gap-3">
@@ -171,132 +188,162 @@ export default function App() {
       </nav>
 
       {/* Hero & Search */}
-      <section className="relative py-20 px-4 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-full bg-orange-600/10 blur-[120px] rounded-full -z-10" />
-        <div className="max-w-4xl mx-auto text-center mb-12">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full mb-6"
-          >
-            <Sparkles className="w-3 h-3 text-orange-500" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">AI-Powered Deal Discovery</span>
-          </motion.div>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight"
-          >
-            Find the <span className="text-orange-600">Best Deals</span> <br />Across the Globe.
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-zinc-500 text-lg max-w-2xl mx-auto mb-10"
-          >
-            We scrape Alibaba, Temu, and AliExpress daily to bring you the hottest trending items. 
-            Use our visual search to find anything instantly.
-          </motion.p>
-          
-          <VisualSearch onSearch={setSearchQuery} />
-        </div>
-      </section>
-
-      {/* Main Grid */}
-      <main className="max-w-7xl mx-auto px-4 pb-20">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-          <div className="flex items-center gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
-                  activeCategory === cat 
-                    ? "bg-orange-600 text-white shadow-lg shadow-orange-600/20" 
-                    : "bg-zinc-900 text-zinc-500 hover:text-zinc-300 border border-zinc-800"
-                }`}
+      {currentView === "home" ? (
+        <>
+          <section className="relative py-20 px-4 overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-full bg-orange-600/10 blur-[120px] rounded-full -z-10" />
+            <div className="max-w-4xl mx-auto text-center mb-12">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full mb-6"
               >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-4 bg-zinc-900/50 p-1 rounded-xl border border-zinc-800">
-            {["All", "AliExpress", "Temu", "Alibaba", "Google Shopping"].map(tab => (
-              <button 
-                key={tab}
-                onClick={() => setActiveTab(tab.toLowerCase())}
-                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${
-                  activeTab === tab.toLowerCase() 
-                    ? "bg-zinc-800 text-white" 
-                    : "text-zinc-600 hover:text-zinc-400"
-                }`}
+                <Sparkles className="w-3 h-3 text-orange-500" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">AI-Powered Deal Discovery</span>
+              </motion.div>
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight"
               >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
+                Find the <span className="text-orange-600">Best Deals</span> <br />Across the Globe.
+              </motion.h1>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-zinc-500 text-lg max-w-2xl mx-auto mb-10"
+              >
+                We scrape Alibaba, Temu, and AliExpress daily to bring you the hottest trending items. 
+                Use our visual search to find anything instantly.
+              </motion.p>
+              
+              <VisualSearch onSearch={setSearchQuery} />
+            </div>
+          </section>
 
-        {googleDeals.length > 0 && activeTab === "all" && !searchQuery && (
-          <div className="mb-16">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-orange-600/20 rounded-lg">
-                <Globe className="w-5 h-5 text-orange-500" />
+          {/* Main Grid */}
+          <main className="max-w-7xl mx-auto px-4 pb-20">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+              <div className="flex items-center gap-4 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
+                      activeCategory === cat 
+                        ? "bg-orange-600 text-white shadow-lg shadow-orange-600/20" 
+                        : "bg-zinc-900 text-zinc-500 hover:text-zinc-300 border border-zinc-800"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
               </div>
-              <div>
-                <h3 className="text-xl font-black text-white">Daily AI Picks</h3>
-                <p className="text-xs text-zinc-500 uppercase tracking-widest">Sourced from Google Shopping</p>
+
+              <div className="flex items-center gap-4 bg-zinc-900/50 p-1 rounded-xl border border-zinc-800">
+                {["All", "AliExpress", "Temu", "Alibaba", "Google Shopping"].map(tab => (
+                  <button 
+                    key={tab}
+                    onClick={() => setActiveTab(tab.toLowerCase())}
+                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${
+                      activeTab === tab.toLowerCase() 
+                        ? "bg-zinc-800 text-white" 
+                        : "text-zinc-600 hover:text-zinc-400"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
               </div>
             </div>
+
+            {googleDeals.length > 0 && activeTab === "all" && !searchQuery && (
+              <div className="mb-16">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-orange-600/20 rounded-lg">
+                    <Globe className="w-5 h-5 text-orange-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-white">Daily AI Picks</h3>
+                    <p className="text-xs text-zinc-500 uppercase tracking-widest">Sourced from Google Shopping</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {googleDeals.slice(0, 4).map(deal => (
+                    <DealCard 
+                      key={deal.id} 
+                      deal={deal} 
+                      isSaved={wishlist.includes(deal.id)}
+                      onSave={toggleWishlist}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-black text-white flex items-center gap-3">
+                <ShoppingCart className="w-6 h-6 text-orange-600" />
+                {searchQuery ? `Search Results for "${searchQuery}"` : "Today's Hot Deals"}
+              </h2>
+              <div className="text-xs font-mono text-zinc-500">
+                Showing {filteredDeals.length} items
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {googleDeals.slice(0, 4).map(deal => (
-                <DealCard 
-                  key={deal.id} 
-                  deal={deal} 
-                  isSaved={wishlist.includes(deal.id)}
-                  onSave={toggleWishlist}
-                />
+              <AnimatePresence mode="popLayout">
+                {filteredDeals.map(deal => (
+                  <DealCard 
+                    key={deal.id} 
+                    deal={deal} 
+                    isSaved={wishlist.includes(deal.id)}
+                    onSave={toggleWishlist}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {filteredDeals.length === 0 && (
+              <div className="py-20 text-center">
+                <div className="w-20 h-20 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Search className="w-8 h-8 text-zinc-700" />
+                </div>
+                <h3 className="text-xl font-bold text-zinc-300">No deals found</h3>
+                <p className="text-zinc-500">Try searching for something else or upload an image.</p>
+              </div>
+            )}
+          </main>
+        </>
+      ) : (
+        <main className="max-w-7xl mx-auto px-4 py-20">
+          <div className="mb-12">
+            <h1 className="text-5xl font-black text-white mb-4">Best Sellers Store</h1>
+            <p className="text-zinc-500">The most purchased items across all marketplaces, curated by AI.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {allDeals
+              .sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0))
+              .map(deal => (
+                <div key={deal.id} className="relative">
+                  <DealCard 
+                    deal={deal} 
+                    isSaved={wishlist.includes(deal.id)}
+                    onSave={toggleWishlist}
+                  />
+                  {deal.salesCount && (
+                    <div className="absolute -top-2 -right-2 bg-orange-600 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-xl z-10">
+                      {deal.salesCount.toLocaleString()}+ SOLD
+                    </div>
+                  )}
+                </div>
               ))}
-            </div>
           </div>
-        )}
-
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-black text-white flex items-center gap-3">
-            <ShoppingCart className="w-6 h-6 text-orange-600" />
-            {searchQuery ? `Search Results for "${searchQuery}"` : "Today's Hot Deals"}
-          </h2>
-          <div className="text-xs font-mono text-zinc-500">
-            Showing {filteredDeals.length} items
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <AnimatePresence mode="popLayout">
-            {filteredDeals.map(deal => (
-              <DealCard 
-                key={deal.id} 
-                deal={deal} 
-                isSaved={wishlist.includes(deal.id)}
-                onSave={toggleWishlist}
-              />
-            ))}
-          </AnimatePresence>
-        </div>
-
-        {filteredDeals.length === 0 && (
-          <div className="py-20 text-center">
-            <div className="w-20 h-20 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-zinc-700" />
-            </div>
-            <h3 className="text-xl font-bold text-zinc-300">No deals found</h3>
-            <p className="text-zinc-500">Try searching for something else or upload an image.</p>
-          </div>
-        )}
-      </main>
+        </main>
+      )}
 
       {/* Wishlist Sidebar (Simplified) */}
       <AnimatePresence>

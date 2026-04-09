@@ -19,7 +19,8 @@ async function startServer() {
       productUrl: "https://aliexpress.com",
       source: "AliExpress",
       category: "Electronics",
-      trendingScore: 98
+      trendingScore: 98,
+      salesCount: 1250
     },
     {
       id: "2",
@@ -30,7 +31,8 @@ async function startServer() {
       productUrl: "https://temu.com",
       source: "Temu",
       category: "Electronics",
-      trendingScore: 95
+      trendingScore: 95,
+      salesCount: 3400
     },
     {
       id: "3",
@@ -41,7 +43,8 @@ async function startServer() {
       productUrl: "https://alibaba.com",
       source: "Alibaba",
       category: "Furniture",
-      trendingScore: 92
+      trendingScore: 92,
+      salesCount: 850
     },
     {
       id: "4",
@@ -52,7 +55,8 @@ async function startServer() {
       productUrl: "https://temu.com",
       source: "Temu",
       category: "Kitchen",
-      trendingScore: 88
+      trendingScore: 88,
+      salesCount: 2100
     },
     {
       id: "5",
@@ -63,7 +67,8 @@ async function startServer() {
       productUrl: "https://aliexpress.com",
       source: "AliExpress",
       category: "Electronics",
-      trendingScore: 85
+      trendingScore: 85,
+      salesCount: 1800
     }
   ];
 
