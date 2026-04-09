@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { auth, db, signIn, signOut } from "./lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { collection, onSnapshot, query, setDoc, doc, deleteDoc, serverTimestamp } from "firebase/firestore";
-import { LogIn, LogOut, Heart, ShoppingCart, Sparkles, Zap, Github, Search, X } from "lucide-react";
+import { LogIn, LogOut, Heart, ShoppingCart, Sparkles, Zap, Github, Search, X, Globe } from "lucide-react";
 import TrendingCarousel from "./components/TrendingCarousel";
 import VisualSearch from "./components/VisualSearch";
 import DealCard from "./components/DealCard";
 import { motion, AnimatePresence } from "motion/react";
+import { searchGoogleShoppingDeals } from "./lib/gemini";
 
 interface Deal {
   id: string;
@@ -28,6 +29,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("all");
   const [activeCategory, setActiveCategory] = useState("all");
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [googleDeals, setGoogleDeals] = useState<Deal[]>([]);
+  const [isLoadingGoogle, setIsLoadingGoogle] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
@@ -39,6 +42,39 @@ export default function App() {
     fetch("/api/trending")
       .then(res => res.json())
       .then(data => setDeals(data));
+  }, []);
+
+  useEffect(() => {
+    const fetchDailyPicks = async () => {
+      const lastFetch = localStorage.getItem("last_google_search_date");
+      const today = new Date().toDateString();
+      
+      if (lastFetch === today) {
+        const cached = localStorage.getItem("google_deals_cache");
+        if (cached) {
+          setGoogleDeals(JSON.parse(cached));
+          return;
+        }
+      }
+
+      setIsLoadingGoogle(true);
+      const newDeals = await searchGoogleShoppingDeals();
+      const formattedDeals = newDeals.map((d: any, i: number) => ({
+        ...d,
+        id: d.id || `google-${i}`,
+        source: "Google Shopping",
+        category: d.category || "General",
+        trendingScore: d.trendingScore || 90,
+        imageUrl: d.imageUrl || `https://picsum.photos/seed/google-${i}/400/400`
+      }));
+      
+      setGoogleDeals(formattedDeals);
+      localStorage.setItem("google_deals_cache", JSON.stringify(formattedDeals));
+      localStorage.setItem("last_google_search_date", today);
+      setIsLoadingGoogle(false);
+    };
+
+    fetchDailyPicks();
   }, []);
 
   useEffect(() => {
@@ -71,7 +107,9 @@ export default function App() {
     }
   };
 
-  const filteredDeals = deals.filter(deal => {
+  const allDeals = [...deals, ...googleDeals];
+
+  const filteredDeals = allDeals.filter(deal => {
     const matchesSearch = deal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                         deal.category.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesTab = activeTab === "all" || deal.source.toLowerCase() === activeTab.toLowerCase();
@@ -79,7 +117,7 @@ export default function App() {
     return matchesSearch && matchesTab && matchesCategory;
   });
 
-  const categories = ["all", ...Array.from(new Set(deals.map(d => d.category)))];
+  const categories = ["all", ...Array.from(new Set(allDeals.map(d => d.category)))];
 
   return (
     <div className="min-h-screen bg-black text-zinc-200 font-sans selection:bg-orange-500/30">
@@ -186,7 +224,7 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-4 bg-zinc-900/50 p-1 rounded-xl border border-zinc-800">
-            {["All", "AliExpress", "Temu", "Alibaba"].map(tab => (
+            {["All", "AliExpress", "Temu", "Alibaba", "Google Shopping"].map(tab => (
               <button 
                 key={tab}
                 onClick={() => setActiveTab(tab.toLowerCase())}
@@ -201,6 +239,30 @@ export default function App() {
             ))}
           </div>
         </div>
+
+        {googleDeals.length > 0 && activeTab === "all" && !searchQuery && (
+          <div className="mb-16">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-orange-600/20 rounded-lg">
+                <Globe className="w-5 h-5 text-orange-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-white">Daily AI Picks</h3>
+                <p className="text-xs text-zinc-500 uppercase tracking-widest">Sourced from Google Shopping</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {googleDeals.slice(0, 4).map(deal => (
+                <DealCard 
+                  key={deal.id} 
+                  deal={deal} 
+                  isSaved={wishlist.includes(deal.id)}
+                  onSave={toggleWishlist}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-black text-white flex items-center gap-3">
