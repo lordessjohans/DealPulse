@@ -1,0 +1,7 @@
+{
+  "name": "DealPulse",
+  "description": "Real-time trending deals from Alibaba, Temu, and AliExpress with AI-powered visual search.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "entities": {
+    "Deal": {
+      "title": "Deal",
+      "description": "A trending item from a supported marketplace.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "price": { "type": "number" },
+        "originalPrice": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "productUrl": { "type": "string" },
+        "source": { "type": "string", "enum": ["Alibaba", "Temu", "AliExpress"] },
+        "category": { "type": "string" },
+        "trendingScore": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "price", "imageUrl", "productUrl", "source"]
+    },
+    "WishlistItem": {
+      "title": "WishlistItem",
+      "description": "An item saved by a user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "dealId": { "type": "string" },
+        "addedAt": { "type": "string", "format": "date-time" },
+        "dealData": { "$ref": "Deal" }
+      },
+      "required": ["userId", "dealId", "addedAt"]
+    }
+  },
+  "firestore": {
+    "/trending": {
+      "schema": "Deal",
+      "description": "Global trending items updated daily."
+    },
+    "/users/{userId}/wishlist": {
+      "schema": "WishlistItem",
+      "description": "User-specific saved items."
+    }
+  }
+}

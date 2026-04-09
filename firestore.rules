@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: trending
+    // Fields: title, price, originalPrice, imageUrl, productUrl, source, category, trendingScore, createdAt
+    //
+    // Collection: users/{userId}/wishlist
+    // Fields: userId, dealId, addedAt, dealData
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    match /trending/{dealId} {
+      allow read: if true; // Publicly readable trending items
+      allow write: if false; // Only updated via admin/backend (simulated)
+    }
+
+    match /users/{userId}/wishlist/{itemId} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}
